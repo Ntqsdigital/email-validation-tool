@@ -1,286 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Email Validator Dashboard</title>
+<meta charset="UTF-8">
+<title>Email Validator Dashboard</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Segoe UI", sans-serif;
-    }
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",sans-serif}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 
-    body {
-      background: #f1f5f9;
-      display: flex;
-      min-height: 100vh;
-      perspective: 1200px;
-      overflow-x: hidden;
-    }
+/* Sidebar */
+.sidebar{
+  width:230px;background:#0f172a;color:#fff;padding:20px;
+  position:fixed;top:0;bottom:0;left:0;
+  transform:translateX(-100%);
+  transition:.35s;z-index:1000
+}
+.sidebar.open{transform:translateX(0)}
+.sidebar h2{color:#38bdf8;text-align:center;margin-bottom:30px}
+.sidebar a{
+  display:block;color:#cbd5e1;padding:12px;border-radius:6px;
+  text-decoration:none;margin-bottom:8px
+}
+.sidebar a:hover,.sidebar a.active{background:#1e293b;color:#fff}
+.close-btn{position:absolute;top:15px;right:15px;cursor:pointer}
 
-    /* ---------- SIDEBAR ---------- */
-    .sidebar {
-      width: 230px;
-      background: #0f172a;
-      color: white;
-      padding: 20px;
-      position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      transform: translateX(0);
-      transition: transform 0.35s ease;
-      z-index: 1000;
-    }
+/* Main */
+.main{flex:1;margin-left:0;padding:30px;transition:.35s}
+.main.shift{margin-left:230px}
 
-    .sidebar.closed {
-      transform: translateX(-100%);
-    }
+/* Header */
+.header{
+  background:#fff;padding:15px 25px;border-radius:10px;
+  display:flex;justify-content:space-between;align-items:center
+}
+.menu-btn{font-size:22px;cursor:pointer}
 
-    .sidebar h2 {
-      margin-bottom: 30px;
-      text-align: center;
-      color: #38bdf8;
-    }
-
-    .sidebar a {
-      display: block;
-      color: #cbd5e1;
-      padding: 12px;
-      text-decoration: none;
-      border-radius: 6px;
-      margin-bottom: 8px;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar a.active,
-    .sidebar a:hover {
-      background: #1e293b;
-      color: white;
-    }
-
-    /* Close button */
-    .close-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      font-size: 20px;
-      cursor: pointer;
-      color: #94a3b8;
-    }
-
-    .close-btn:hover {
-      color: white;
-    }
-
-    /* ---------- MAIN ---------- */
-    .main {
-      flex: 1;
-      margin-left: 230px;
-      padding: 30px;
-      transition: margin-left 0.35s ease;
-    }
-
-    .main.full {
-      margin-left: 0;
-    }
-
-    /* ---------- HEADER ---------- */
-    .header {
-      background: white;
-      padding: 15px 25px;
-      border-radius: 10px;
-      margin-bottom: 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .menu-btn {
-      font-size: 22px;
-      cursor: pointer;
-      margin-right: 15px;
-      color: #0f172a;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* ---------- CARD ---------- */
-    .card {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-    }
-
-    input[type="file"] {
-      width: 100%;
-      padding: 10px;
-    }
-
-    button {
-      margin-top: 15px;
-      padding: 12px;
-      width: 100%;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 15px;
-      cursor: pointer;
-    }
-
-    .results {
-      display: flex;
-      gap: 20px;
-      margin-top: 25px;
-    }
-
-    .result-box {
-      flex: 1;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    .valid {
-      background: #ecfdf5;
-      color: #047857;
-    }
-
-    .invalid {
-      background: #fef2f2;
-      color: #b91c1c;
-    }
-
-    .downloads a {
-      display: block;
-      margin-top: 10px;
-      color: #2563eb;
-      text-decoration: none;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-    }
-
-    th {
-      background: #f8fafc;
-    }
-  </style>
+/* Card */
+.card{
+  background:#fff;padding:25px;border-radius:12px;
+  margin-top:25px;box-shadow:0 8px 20px rgba(0,0,0,.05)
+}
+button{
+  width:100%;padding:12px;background:#2563eb;color:#fff;
+  border:none;border-radius:6px;margin-top:15px;cursor:pointer
+}
+.results{display:flex;gap:20px;margin-top:25px}
+.result{flex:1;padding:20px;border-radius:10px;text-align:center}
+.valid{background:#ecfdf5;color:#047857}
+.invalid{background:#fef2f2;color:#b91c1c}
+.hidden{display:none}
+</style>
 </head>
 
 <body>
 
-  <!-- Sidebar -->
-  <div class="sidebar closed" id="sidebar">
-    <div class="close-btn" onclick="toggleSidebar()">✖</div>
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="close-btn" onclick="toggle()">✖</div>
+  <h2>EmailValidator</h2>
+  <a onclick="showPage('dashboard')" class="active">Dashboard</a>
+  <a onclick="showPage('history')">History</a>
+  <a onclick="showPage('billing')">Billing</a>
+  <a onclick="showPage('settings')">Settings</a>
+</div>
 
-    <h2>EmailValidator</h2>
-    <a href="/dashboard" class="{{ 'active' if page=='dashboard' else '' }}">Dashboard</a>
-    <a href="/history" class="{{ 'active' if page=='history' else '' }}">History</a>
-    <a href="/billing" class="{{ 'active' if page=='billing' else '' }}">Billing</a>
-    <a href="/settings" class="{{ 'active' if page=='settings' else '' }}">Settings</a>
+<!-- Main -->
+<div class="main" id="main">
+  <div class="header">
+    <div>
+      <span class="menu-btn" onclick="toggle()">☰</span>
+      <b id="title">Dashboard</b>
+    </div>
+    <span>Free Plan</span>
   </div>
 
-  <!-- Main -->
-  <div class="main full" id="main">
-    <div class="header">
-      <div class="header-left">
-        <div class="menu-btn" onclick="toggleSidebar()">☰</div>
-        <h3>{{ page|capitalize }}</h3>
+  <!-- Dashboard -->
+  <div class="card" id="dashboard">
+    <h4>Upload CSV / Excel</h4>
+    <button onclick="showResults()">Validate Emails</button>
+
+    <div class="results hidden" id="results">
+      <div class="result valid">
+        <h3>3004</h3>
+        <p>Valid Emails</p>
       </div>
-      <span>Free Plan</span>
-    </div>
-
-    <div class="card">
-
-      {% if page == "dashboard" %}
-        <h4>Upload CSV / Excel</h4>
-
-        <form action="/validate" method="post" enctype="multipart/form-data">
-          <input type="file" name="file" required>
-          <button type="submit">Validate Emails</button>
-        </form>
-
-        {% if show_results %}
-        <div class="results">
-          <div class="result-box valid">
-            <h3>{{ valid_count }}</h3>
-            <p>Valid Emails</p>
-          </div>
-          <div class="result-box invalid">
-            <h3>{{ invalid_count }}</h3>
-            <p>Invalid Emails</p>
-          </div>
-        </div>
-
-        <div class="downloads">
-          <a href="/download/valid">⬇ Download Valid Emails</a>
-          <a href="/download/invalid">⬇ Download Invalid Emails</a>
-        </div>
-        {% endif %}
-
-      {% elif page == "history" %}
-        <h4>Validation History</h4>
-
-        <table>
-          <tr>
-            <th>File</th>
-            <th>Total</th>
-            <th>Valid</th>
-            <th>Invalid</th>
-            <th>Date</th>
-          </tr>
-          {% for h in history %}
-          <tr>
-            <td>{{ h[0] }}</td>
-            <td>{{ h[1] }}</td>
-            <td style="color:green">{{ h[2] }}</td>
-            <td style="color:red">{{ h[3] }}</td>
-            <td>{{ h[4] }}</td>
-          </tr>
-          {% endfor %}
-        </table>
-
-      {% elif page == "billing" %}
-        <h4>Billing & Plans</h4>
-
-      {% elif page == "settings" %}
-        <h4>Account Settings</h4>
-        <p><b>Email:</b> {{ user_email }}</p>
-        <p><b>Plan:</b> Free</p>
-        <a href="/logout" style="color:#dc2626;text-decoration:none;">Logout</a>
-      {% endif %}
-
+      <div class="result invalid">
+        <h3>0</h3>
+        <p>Invalid Emails</p>
+      </div>
     </div>
   </div>
 
-  <!-- Toggle Script -->
-  <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      const main = document.getElementById("main");
+  <!-- History -->
+  <div class="card hidden" id="history">
+    <h4>Validation History</h4>
+    <p>Demo data only</p>
+  </div>
 
-      sidebar.classList.toggle("closed");
-      main.classList.toggle("full");
-    }
-  </script>
+  <!-- Billing -->
+  <div class="card hidden" id="billing">
+    <h4>Billing</h4>
+    <p>Free Plan</p>
+  </div>
+
+  <!-- Settings -->
+  <div class="card hidden" id="settings">
+    <h4>Settings</h4>
+    <p>Email: demo@example.com</p>
+  </div>
+</div>
+
+<script>
+function toggle(){
+  sidebar.classList.toggle("open")
+  main.classList.toggle("shift")
+}
+
+function showPage(id){
+  document.querySelectorAll(".card").forEach(c=>c.classList.add("hidden"))
+  document.getElementById(id).classList.remove("hidden")
+  document.getElementById("title").innerText=id.charAt(0).toUpperCase()+id.slice(1)
+}
+
+function showResults(){
+  document.getElementById("results").classList.remove("hidden")
+}
+</script>
 
 </body>
 </html>
+
 
