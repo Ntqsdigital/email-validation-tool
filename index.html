@@ -27,8 +27,8 @@ body{
   padding:20px;
   position:fixed;
   inset:0 auto 0 0;
-  transform:translateX(-100%);
-  transition:.35s;
+  transform:translateX(-100%); /* CLOSED BY DEFAULT */
+  transition:.35s ease;
   z-index:1000;
 }
 .sidebar.open{transform:translateX(0)}
@@ -64,9 +64,17 @@ body{
 .main{
   flex:1;
   padding:30px;
-  transition:.35s;
+  transition:.35s ease;
 }
-.main.shift{margin-left:230px}
+.main.shift{
+  margin-left:230px;
+}
+
+/* Content width control (THIS WAS MISSING) */
+.container{
+  max-width:1100px;
+  margin:0 auto;
+}
 
 /* ---------- HEADER ---------- */
 .header{
@@ -175,74 +183,78 @@ th{
 
 <!-- MAIN -->
 <div class="main" id="main">
-  <div class="header">
-    <div class="header-left">
-      <span class="menu-btn" onclick="toggleSidebar()">☰</span>
-      <h3>{{ page|capitalize }}</h3>
+  <div class="container">
+
+    <div class="header">
+      <div class="header-left">
+        <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+        <h3>{{ page|capitalize }}</h3>
+      </div>
+      <span>Free Plan</span>
     </div>
-    <span>Free Plan</span>
-  </div>
 
-  <div class="card">
+    <div class="card">
 
-    {% if page == "dashboard" %}
-      <h4>Upload CSV / Excel</h4>
+      {% if page == "dashboard" %}
+        <h4>Upload CSV / Excel</h4>
 
-      <form action="/validate" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" required>
-        <button type="submit">Validate Emails</button>
-      </form>
+        <form action="/validate" method="post" enctype="multipart/form-data">
+          <input type="file" name="file" required>
+          <button type="submit">Validate Emails</button>
+        </form>
 
-      {% if show_results %}
-      <div class="results">
-        <div class="result-box valid">
-          <h2>{{ valid_count }}</h2>
-          <p>Valid Emails</p>
+        {% if show_results %}
+        <div class="results">
+          <div class="result-box valid">
+            <h2>{{ valid_count }}</h2>
+            <p>Valid Emails</p>
+          </div>
+          <div class="result-box invalid">
+            <h2>{{ invalid_count }}</h2>
+            <p>Invalid Emails</p>
+          </div>
         </div>
-        <div class="result-box invalid">
-          <h2>{{ invalid_count }}</h2>
-          <p>Invalid Emails</p>
-        </div>
-      </div>
 
-      <div class="downloads">
-        <a href="/download/valid">⬇ Download Valid Emails</a>
-        <a href="/download/invalid">⬇ Download Invalid Emails</a>
-      </div>
+        <div class="downloads">
+          <a href="/download/valid">⬇ Download Valid Emails</a>
+          <a href="/download/invalid">⬇ Download Invalid Emails</a>
+        </div>
+        {% endif %}
+
+      {% elif page == "history" %}
+        <h4>Validation History</h4>
+
+        <table>
+          <tr>
+            <th>File</th>
+            <th>Total</th>
+            <th>Valid</th>
+            <th>Invalid</th>
+            <th>Date</th>
+          </tr>
+          {% for h in history %}
+          <tr>
+            <td>{{ h[0] }}</td>
+            <td>{{ h[1] }}</td>
+            <td style="color:green">{{ h[2] }}</td>
+            <td style="color:red">{{ h[3] }}</td>
+            <td>{{ h[4] }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+
+      {% elif page == "billing" %}
+        <h4>Billing & Plans</h4>
+        <p>Free Plan</p>
+
+      {% elif page == "settings" %}
+        <h4>Account Settings</h4>
+        <p><b>Email:</b> {{ user_email }}</p>
+        <p><b>Plan:</b> Free</p>
+        <a href="/logout" style="color:#dc2626;text-decoration:none;">Logout</a>
       {% endif %}
 
-    {% elif page == "history" %}
-      <h4>Validation History</h4>
-
-      <table>
-        <tr>
-          <th>File</th>
-          <th>Total</th>
-          <th>Valid</th>
-          <th>Invalid</th>
-          <th>Date</th>
-        </tr>
-        {% for h in history %}
-        <tr>
-          <td>{{ h[0] }}</td>
-          <td>{{ h[1] }}</td>
-          <td style="color:green">{{ h[2] }}</td>
-          <td style="color:red">{{ h[3] }}</td>
-          <td>{{ h[4] }}</td>
-        </tr>
-        {% endfor %}
-      </table>
-
-    {% elif page == "billing" %}
-      <h4>Billing & Plans</h4>
-      <p>Free Plan</p>
-
-    {% elif page == "settings" %}
-      <h4>Account Settings</h4>
-      <p><b>Email:</b> {{ user_email }}</p>
-      <p><b>Plan:</b> Free</p>
-      <a href="/logout" style="color:#dc2626;text-decoration:none;">Logout</a>
-    {% endif %}
+    </div>
 
   </div>
 </div>
