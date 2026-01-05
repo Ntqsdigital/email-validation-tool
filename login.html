@@ -82,7 +82,19 @@ h2 {
   text-align: center;
   color: #cbd5e1;
   font-size: 14px;
-  margin-bottom: 28px;
+  margin-bottom: 22px;
+}
+
+/* ERROR MESSAGE */
+.error {
+  display: none;
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(239,68,68,0.18);
+  color: #fecaca;
+  text-align: center;
+  font-size: 14px;
 }
 
 input {
@@ -153,10 +165,15 @@ button:hover {
   <h2>Welcome Back</h2>
   <div class="subtitle">Login to your dashboard</div>
 
-  <form method="post">
+  <!-- ERROR MESSAGE -->
+  <div id="errorMsg" class="error">
+    Invalid email or password
+  </div>
+
+  <form id="loginForm">
     <input type="email" name="email" placeholder="Email address" required>
     <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
+    <button type="submit" id="loginBtn">Login</button>
   </form>
 
   <div class="footer">
@@ -164,6 +181,45 @@ button:hover {
     <a href="/signup">Create account</a>
   </div>
 </div>
+
+<script>
+const form = document.getElementById("loginForm");
+const errorMsg = document.getElementById("errorMsg");
+const btn = document.getElementById("loginBtn");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault(); // stop page refresh
+  errorMsg.style.display = "none";
+  btn.innerText = "Logging in...";
+  btn.disabled = true;
+
+  const email = form.email.value;
+  const password = form.password.value;
+
+  try {
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      window.location.href = "/dashboard";
+    } else {
+      errorMsg.innerText = data.message || "Invalid email or password";
+      errorMsg.style.display = "block";
+    }
+  } catch (err) {
+    errorMsg.innerText = "Server error. Try again.";
+    errorMsg.style.display = "block";
+  }
+
+  btn.innerText = "Login";
+  btn.disabled = false;
+});
+</script>
 
 </body>
 </html>
