@@ -43,15 +43,13 @@ def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         if "user_id" not in session:
-            if request.method == "GET":
-                session["next"] = request.path
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return wrapper
 
 
 # -------------------------
-# Get user plan
+# Helpers
 # -------------------------
 def get_user_plan():
     if "user_id" not in session:
@@ -70,25 +68,6 @@ def get_user_plan():
     return row[0] if row else "free"
 
 
-# -------------------------
-# Count user validations
-# -------------------------
-def get_validation_count(user_id):
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute(
-        "SELECT COUNT(*) FROM history WHERE user_id=%s",
-        (user_id,)
-    )
-    count = cursor.fetchone()[0]
-    cursor.close()
-    db.close()
-    return count
-
-
-# -------------------------
-# Email validation
-# -------------------------
 def is_valid_email(email):
     try:
         validate_email(email, check_deliverability=False)
@@ -130,7 +109,7 @@ def signup():
 
 
 # -------------------------
-# Login
+# Login (FORM BASED)
 # -------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -151,6 +130,7 @@ def login():
         db.close()
 
         if user and check_password_hash(user[1], password):
+            session.clear()
             session["user_id"] = user[0]
             session["email"] = email
             return redirect(url_for("dashboard"))
@@ -163,11 +143,11 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("login"))
 
 
 # -------------------------
-# Public Dashboard
+# Dashboard
 # -------------------------
 @app.route("/")
 def home():
@@ -175,6 +155,7 @@ def home():
 
 
 @app.route("/dashboard")
+@login_required
 def dashboard():
     return render_template(
         "dashboard.html",
@@ -215,7 +196,7 @@ def history():
 
 
 # -------------------------
-# Billing
+# Billing  ✅ ADDED
 # -------------------------
 @app.route("/billing")
 @login_required
@@ -229,17 +210,25 @@ def billing():
 
 
 # -------------------------
-# Validate (FREE = 1 TIME)
+# Settings  ✅ ADDED
+# -------------------------
+@app.route("/settings")
+@login_required
+def settings():
+    return render_template(
+        "dashboard.html",
+        page="settings",
+        user_email=session["email"],
+        plan=get_user_plan()
+    )
+
+
+# -------------------------
+# Validate (UNLIMITED)
 # -------------------------
 @app.route("/validate", methods=["POST"])
 @login_required
 def validate_file():
-    user_plan = get_user_plan()
-    validations_done = get_validation_count(session["user_id"])
-
-    # 🚫 Free user restriction
-    if user_plan == "free" and validations_done >= 1:
-        return redirect(url_for("billing"))
 
     file = request.files.get("file")
     if not file:
@@ -249,12 +238,9 @@ def validate_file():
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(filepath)
 
-    if filename.lower().endswith(".csv"):
-        df = pd.read_csv(filepath)
-    else:
-        df = pd.read_excel(filepath)
-
+    df = pd.read_csv(filepath) if filename.lower().endswith(".csv") else pd.read_excel(filepath)
     df.columns = [c.strip().lower() for c in df.columns]
+
     email_column = next((c for c in df.columns if "email" in c), None)
     if not email_column:
         return redirect(url_for("dashboard"))
