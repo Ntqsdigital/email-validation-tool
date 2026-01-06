@@ -30,6 +30,7 @@ body {
   overflow: hidden;
 }
 
+/* MAGIC BACKGROUND */
 .magic-bg {
   position: absolute;
   width: 600px;
@@ -48,6 +49,7 @@ body {
   50% { transform: scale(1.2); opacity: 1; }
 }
 
+/* CARD */
 .card {
   width: 380px;
   padding: 44px 36px;
@@ -85,9 +87,8 @@ h2 {
   margin-bottom: 22px;
 }
 
-/* ERROR MESSAGE */
+/* ERROR MESSAGE (LOGIC SAME) */
 .error {
-  display: none;
   margin-bottom: 16px;
   padding: 12px;
   border-radius: 10px;
@@ -97,6 +98,7 @@ h2 {
   font-size: 14px;
 }
 
+/* INPUTS */
 input {
   width: 100%;
   padding: 14px;
@@ -118,6 +120,7 @@ input:focus {
   box-shadow: 0 0 16px rgba(37,99,235,0.7);
 }
 
+/* BUTTON */
 button {
   width: 100%;
   padding: 14px;
@@ -159,21 +162,22 @@ button:hover {
 
 <body>
 
+<!-- MAGIC BACKGROUND -->
 <div class="magic-bg"></div>
 
 <div class="card">
   <h2>Welcome Back</h2>
   <div class="subtitle">Login to your dashboard</div>
 
-  <!-- ERROR MESSAGE -->
-  <div id="errorMsg" class="error">
-    Invalid email or password
-  </div>
+  {% if error %}
+  <div class="error">{{ error }}</div>
+  {% endif %}
 
-  <form id="loginForm">
+  <!-- SAME LOGIN LOGIC -->
+  <form method="POST" action="/login">
     <input type="email" name="email" placeholder="Email address" required>
     <input type="password" name="password" placeholder="Password" required>
-    <button type="submit" id="loginBtn">Login</button>
+    <button type="submit">Login</button>
   </form>
 
   <div class="footer">
@@ -182,44 +186,6 @@ button:hover {
   </div>
 </div>
 
-<script>
-const form = document.getElementById("loginForm");
-const errorMsg = document.getElementById("errorMsg");
-const btn = document.getElementById("loginBtn");
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault(); // stop page refresh
-  errorMsg.style.display = "none";
-  btn.innerText = "Logging in...";
-  btn.disabled = true;
-
-  const email = form.email.value;
-  const password = form.password.value;
-
-  try {
-    const res = await fetch("/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      window.location.href = "/dashboard";
-    } else {
-      errorMsg.innerText = data.message || "Invalid email or password";
-      errorMsg.style.display = "block";
-    }
-  } catch (err) {
-    errorMsg.innerText = "Server error. Try again.";
-    errorMsg.style.display = "block";
-  }
-
-  btn.innerText = "Login";
-  btn.disabled = false;
-});
-</script>
-
 </body>
 </html>
+
